@@ -13,6 +13,11 @@ const userSchema: Schema<IUser> = new Schema({
     },
     email: {
         type: String,
-        required: true
-    }
-})
+        required: true,
+        unique: true
+    },
+   
+},{timestamps:true});
+
+
+export const User = mongoose.model<IUser>("User" , userSchema);
