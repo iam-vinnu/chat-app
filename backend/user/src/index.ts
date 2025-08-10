@@ -8,7 +8,7 @@ import userRouts from "./routs/userRouts.js"
 
 dotenv.config();
 connectDB();
-connectRabbitMQ();   
+connectRabbitMQ();    
 
 export const redisClient = createClient({
     url: process.env.REDIS_URL

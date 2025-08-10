@@ -23,7 +23,7 @@ export const connectRabbitMQ = async()=>{
 export const publishQueue = async (queueName:string , message : any) => {
     if(!channel){
         console.log("RabbitMQ channel is not initiated");
-        
+        return;
     }
 
     await channel.assertQueue(queueName,{durable:true});
