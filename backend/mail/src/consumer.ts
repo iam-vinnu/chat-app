@@ -24,7 +24,7 @@ export const startSendOtpConsumer = async () => {
 
 
      channel.consume(queueName,async(msg)=>{
-           if(msg){
+           if(msg !== null){
               try {
                 const {to,subject,body} = JSON.parse(msg.content.toString());
 
