@@ -2,6 +2,7 @@ import { generateToken } from "../config/generateToken.js";
 import { publishToQueue } from "../config/rabbitmq.js";
 import TryCatch from "../config/TryCatch.js";
 import { redisClient } from "../index.js";
+import { AuthenticatedRequest } from "../middleware/isAuth.js";
 import { User } from "../model/user.model.js";
 
 
@@ -34,7 +35,7 @@ export const loginUser = TryCatch(async (req, res) => {
     await publishToQueue("send-otp", message);
 
     res.status(201).json({
-        message: "OTP sent to your mail."
+        message: "OTP sent to your mail."  
     })
 });
 
@@ -67,11 +68,48 @@ export const verifyUser = TryCatch(async (req, res) => {
 
 
     res.status(200)
-       .cookie("token", token, {httpOnly: true,  sameSite: "strict", maxAge: 15 * 24 * 60 * 60 * 1000,})
+    //    .cookie("token", token, {httpOnly: true,  sameSite: "strict", maxAge: 15 * 24 * 60 * 60 * 1000,})
        .json({
                 message:"User Verified",
-                user
+                user,
+                token
             }); 
 
 
-})
+});
+
+
+export const myProfile = TryCatch(async(req:AuthenticatedRequest, res)=>{
+    const user = req.user;
+
+    res.json(user);
+});
+
+export const updateName = TryCatch(async(req:AuthenticatedRequest, res)=>{
+    const user = await User.findById(req.user?._id);
+    if(!user){
+        return res.status(404).json({
+            message:"Please Login..."
+        });
+    }
+
+    user.name = req.body.name ;
+
+    const token = generateToken(user);
+
+    return res.status(200).json({
+        message:"User Updated",
+        user,
+        token
+    });
+});
+
+export const getAllUsers = TryCatch(async (req:AuthenticatedRequest, res) => {
+    const user = await User.find();
+    return res.status(200).json(user);
+});
+
+export const getUser = TryCatch(async (req,res) => {   //here my route doesn't touch req.user so it is ok to TS infer 
+    const user = await User.findById(req.params.id);
+    return res.json(user);
+});
