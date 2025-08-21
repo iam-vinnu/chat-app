@@ -6,6 +6,9 @@ export interface IChat extends Document{
         text: string;
         sender:string;
     }
+
+    createdAt:Date,
+    updatedAt:Date
 };
 
 const chatSchema:Schema<IChat> = new Schema({
@@ -17,6 +20,6 @@ const chatSchema:Schema<IChat> = new Schema({
         text:String,
         sender:String
     }
-});
+},{timestamps:true});
 
 export const Chat = mongoose.model<IChat>("Chat" , chatSchema);
