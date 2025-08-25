@@ -24,5 +24,6 @@ const chatSchema:Schema<IMessage> = new Schema({
     },
     sender:{
         type:String
-    }
+    },
+    text : String
 });
