@@ -16,7 +16,7 @@ export interface IMessage extends Document{
 }
 
 
-const chatSchema:Schema<IMessage> = new Schema({
+const messageSchema:Schema<IMessage> = new Schema({
     chatId:{
         type: Schema.Types.ObjectId,
         ref:"Chat",
@@ -25,5 +25,26 @@ const chatSchema:Schema<IMessage> = new Schema({
     sender:{
         type:String
     },
-    text : String
-});
+    text : String,
+    image:{
+        url: String,
+        publicId:String
+    },
+    messageType:{
+        type:String,
+        enum:["text" , "image"],
+        default:"text"
+    },
+    seen:{
+        type: Boolean,
+        default: false
+    },
+    seenAt:{
+        type: Date,
+        default:null
+    }
+},{timestamps: true});
+
+
+
+export const Messages = mongoose.model<IMessage>("Messages" ,messageSchema );
