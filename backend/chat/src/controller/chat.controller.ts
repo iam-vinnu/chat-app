@@ -90,4 +90,88 @@ export const sendMessage = TryCatch(async(req:AuthenticatedRequest, res)=>{
     const senderId = req.user?._id;
     const {chatId , text} = req.body;
     const imageFile = req.file;
-})
+
+    if(!senderId){
+        return res.status(402).json({
+            message:"Unauthorized"
+        })
+    };
+
+    if(!chatId){
+        return res.status(400).json({
+            message:"No chat id"
+        })
+    };
+
+    if(!text && !imageFile){
+        return res.status(400).json({
+           mesaage : "Either text or image"
+        })
+    };
+
+    const chat = await Chat.findById(chatId);
+    if(!chat){
+        return res.status(404).json({
+            message:"Chat not found"
+        })
+    };
+
+    const isUserInChat = chat.users?.some((userId)=> userId.toString() === senderId.toString());
+    if(!isUserInChat){
+        return res.status(400).json({
+            message:"You are not a participant in this chat"
+        })
+    };
+
+    const otherUserId = chat.users?.find((userId) => userId.toString() !== senderId.toString());
+    if(!otherUserId){
+        return res.status(400).json({
+            message:"No other user found"
+        })
+    };
+
+    // socket setup
+
+
+    let messageData: any = {
+        chatId : chatId ,
+        sender : senderId,
+        seen : false,
+        seenAt : undefined
+    }
+
+    if(imageFile){
+        messageData.image = {
+            url : imageFile.path,
+            publicId : imageFile.filename
+        }
+        messageData.messageType = "image",
+        messageData.text = text || "";
+    }else{
+        messageData.messageType = "text";
+        messageData.text = text
+    }
+
+    const message = new Messages(messageData);
+    const savedMessage = await message.save();
+
+    const latestMessageText = imageFile ? "📷 image" : text;
+
+    await Chat.findByIdAndUpdate(chatId,{
+        latestMessage : {
+            latestMessageText : text,
+            sender : senderId 
+        },
+        updatedAt: new Date()
+    },{new : true});
+
+    // emit on socket
+
+
+
+    res.status(201).json({
+        message : latestMessageText,
+        sender : senderId
+    });
+
+});

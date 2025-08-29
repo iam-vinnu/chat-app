@@ -10,4 +10,4 @@ router.route("/me").get(isAuth,myProfile);
 router.route("/user/all").get(isAuth,getAllUsers);
 router.route("/user/:id").get(getUser);
 router.route("/update/user").post(isAuth,updateName);
-export default router;  
+export default router;
