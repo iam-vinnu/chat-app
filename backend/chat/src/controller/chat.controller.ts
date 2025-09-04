@@ -179,7 +179,7 @@ export const sendMessage = TryCatch(async (req: AuthenticatedRequest, res) => {
 
 export const getMessageByChat = TryCatch(async (req: AuthenticatedRequest, res) => {
     const userId = req.user?._id;
-    const { chatId } = req.body;
+    const { chatId } = req.params;
 
     if (!userId) {
         return res.status(401).json({
@@ -237,7 +237,20 @@ export const getMessageByChat = TryCatch(async (req: AuthenticatedRequest, res) 
          };
 
          // soket work
+
+
+
+         res.json({
+            messages,
+            user : data
+         });
     } catch (error) {
+        console.log(error);
+
+        res.json({
+            messages,
+            user: {_id: otherUserId , name: "Unknown user"}
+        })
         
     }
 
